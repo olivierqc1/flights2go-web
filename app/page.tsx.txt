@@ -1,0 +1,174 @@
+'use client'
+
+import { useState } from 'react'
+import { Plane, TrendingDown, Globe, Sparkles } from 'lucide-react'
+import SearchForm from '@/components/SearchForm'
+import ResultCard from '@/components/ResultCard'
+import Header from '@/components/Header'
+
+interface Destination {
+  city: string
+  country: string
+  code: string
+  price: number
+  currency: string
+  flag: string
+}
+
+export default function Home() {
+  const [results, setResults] = useState<Destination[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [hasSearched, setHasSearched] = useState(false)
+
+  const handleSearch = async (origin: string, budget: number, period: string) => {
+    setIsLoading(true)
+    setHasSearched(true)
+    
+    try {
+      const response = await fetch('/api/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          origin,
+          budget,
+          period,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la recherche')
+      }
+
+      const data = await response.json()
+      setResults(data)
+      
+    } catch (error) {
+      console.error('Erreur de recherche:', error)
+      setResults([])
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <div className="min-h-screen">
+      <Header />
+      
+      <section className="bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20">
+        <div className="container mx-auto px-4 max-w-4xl text-center">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6">
+            Découvrez où vous pouvez voyager
+          </h1>
+          <p className="text-xl md:text-2xl text-primary-100 mb-8">
+            Ne cherchez pas une destination. Trouvez <span className="font-semibold text-white">TOUTES</span> vos options.
+          </p>
+          <div className="flex flex-wrap justify-center gap-6 text-sm">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5" />
+              <span>Découverte instantanée</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <TrendingDown className="w-5 h-5" />
+              <span>Meilleurs prix garantis</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Globe className="w-5 h-5" />
+              <span>100% gratuit</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-12 bg-gray-50">
+        <div className="container mx-auto px-4 max-w-2xl">
+          <SearchForm onSearch={handleSearch} isLoading={isLoading} />
+        </div>
+      </section>
+
+      {hasSearched && (
+        <section className="py-12">
+          <div className="container mx-auto px-4 max-w-6xl">
+            {isLoading ? (
+              <div className="text-center py-20">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+                <p className="mt-4 text-gray-600">Recherche des meilleures destinations...</p>
+              </div>
+            ) : results.length > 0 ? (
+              <>
+                <h2 className="text-3xl font-bold mb-8 text-center">
+                  {results.length} destination{results.length > 1 ? 's' : ''} trouvée{results.length > 1 ? 's' : ''}
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {results.map((dest, index) => (
+                    <ResultCard key={index} destination={dest} />
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-20">
+                <p className="text-xl text-gray-600">Aucune destination trouvée dans votre budget.</p>
+                <p className="text-gray-500 mt-2">Essayez d'augmenter votre budget ou de changer de période.</p>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {!hasSearched && (
+        <section className="py-20 bg-white">
+          <div className="container mx-auto px-4 max-w-6xl">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+              Comment ça fonctionne ?
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl font-bold text-primary-600">1</span>
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Entrez votre budget</h3>
+                <p className="text-gray-600">
+                  Dites-nous combien vous voulez dépenser
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl font-bold text-primary-600">2</span>
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Découvrez les destinations</h3>
+                <p className="text-gray-600">
+                  Nous scannons tous les vols disponibles
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl font-bold text-primary-600">3</span>
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Réservez votre vol</h3>
+                <p className="text-gray-600">
+                  Cliquez sur "Réserver" pour finaliser
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="container mx-auto px-4 text-center">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Plane className="w-6 h-6" />
+            <span className="text-xl font-bold">Flights2Go</span>
+          </div>
+          <p className="text-gray-400 mb-4">
+            Découvrez où vous pouvez voyager avec votre budget
+          </p>
+          <p className="text-sm text-gray-500">
+            © 2025 Flights2Go. Tous droits réservés.
+          </p>
+        </div>
+      </footer>
+    </div>
+  )
+}
