@@ -1,0 +1,263 @@
+'use client'
+
+import { useState } from 'react'
+import { Search, SlidersHorizontal, MapPin, DollarSign, Calendar, Hotel } from 'lucide-react'
+
+export default function SearchForm({ onSearch, isLoading }) {
+  const [origin, setOrigin] = useState('YUL')
+  const [budget, setBudget] = useState('2000')
+  const [period, setPeriod] = useState('Octobre 2026')
+  const [nights, setNights] = useState(7)
+  
+  // Filtres
+  const [showFilters, setShowFilters] = useState(false)
+  const [filters, setFilters] = useState({
+    maxStops: -1,              // -1 = peu importe
+    maxFlightDuration: -1,     // -1 = peu importe
+    baggageIncluded: false,
+    minHotelRating: 0,
+    accommodationType: 'all'
+  })
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    onSearch({
+      origin,
+      budget: parseInt(budget),
+      period,
+      nights,
+      filters
+    })
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="card max-w-4xl mx-auto">
+      <h2 className="text-2xl font-bold mb-6 text-center">
+        Où pouvez-vous VRAIMENT voyager ?
+      </h2>
+
+      {/* CHAMPS DE BASE */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div>
+          <label className="block text-sm font-semibold mb-2">
+            <MapPin className="inline w-4 h-4 mr-1" />
+            D'où partez-vous ?
+          </label>
+          <select value={origin} onChange={(e) => setOrigin(e.target.value)} className="input-field">
+            <option value="YUL">YUL - Montréal</option>
+            <option value="YYZ">YYZ - Toronto</option>
+            <option value="YVR">YVR - Vancouver</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold mb-2">
+            <DollarSign className="inline w-4 h-4 mr-1" />
+            Budget TOTAL
+          </label>
+          <div className="relative">
+            <input
+              type="number"
+              value={budget}
+              onChange={(e) => setBudget(e.target.value)}
+              className="input-field pr-16"
+              min="500"
+              step="100"
+            />
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
+              CAD
+            </span>
+          </div>
+          <p className="text-xs text-gray-500 mt-1">Vol + Hôtel + Activités</p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold mb-2">
+            <Calendar className="inline w-4 h-4 mr-1" />
+            Période
+          </label>
+          <select value={period} onChange={(e) => setPeriod(e.target.value)} className="input-field">
+            <option>Octobre 2026</option>
+            <option>Novembre 2026</option>
+            <option>Décembre 2026</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold mb-2">
+            <Hotel className="inline w-4 h-4 mr-1" />
+            Nombre de nuits
+          </label>
+          <input
+            type="number"
+            value={nights}
+            onChange={(e) => setNights(parseInt(e.target.value))}
+            className="input-field"
+            min="3"
+            max="30"
+          />
+        </div>
+      </div>
+
+      {/* BOUTON AFFICHER FILTRES */}
+      <button
+        type="button"
+        onClick={() => setShowFilters(!showFilters)}
+        className="mb-6 text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-2"
+      >
+        <SlidersHorizontal className="w-4 h-4" />
+        {showFilters ? 'Masquer les filtres' : 'Afficher tous les filtres'}
+      </button>
+
+      {/* FILTRES AVANCÉS */}
+      {showFilters && (
+        <div className="bg-gray-50 rounded-lg p-6 mb-6 space-y-6">
+          <h3 className="font-bold text-lg mb-4">Filtres avancés</h3>
+
+          {/* ESCALES */}
+          <div>
+            <label className="block text-sm font-semibold mb-3">Nombre d'escales</label>
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { value: 0, label: 'Direct uniquement' },
+                { value: 1, label: 'Max 1 escale' },
+                { value: 2, label: 'Max 2 escales' },
+                { value: -1, label: 'Peu importe' }
+              ].map(option => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setFilters({ ...filters, maxStops: option.value })}
+                  className={`py-3 px-3 rounded-lg border-2 font-medium transition ${
+                    filters.maxStops === option.value
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white border-gray-300 hover:border-blue-400'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* DURÉE VOL */}
+          <div>
+            <label className="block text-sm font-semibold mb-3">Durée de vol maximum</label>
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { value: 5, label: '< 5 heures' },
+                { value: 10, label: '< 10 heures' },
+                { value: 15, label: '< 15 heures' },
+                { value: -1, label: 'Peu importe' }
+              ].map(option => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setFilters({ ...filters, maxFlightDuration: option.value })}
+                  className={`py-3 px-3 rounded-lg border-2 font-medium transition ${
+                    filters.maxFlightDuration === option.value
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white border-gray-300 hover:border-blue-400'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* BAGAGES */}
+          <div className="flex items-start gap-3 p-4 bg-white rounded-lg border-2 border-gray-200">
+            <input
+              type="checkbox"
+              id="baggage"
+              checked={filters.baggageIncluded}
+              onChange={(e) => setFilters({ ...filters, baggageIncluded: e.target.checked })}
+              className="w-5 h-5 mt-0.5"
+            />
+            <label htmlFor="baggage" className="cursor-pointer">
+              <div className="font-semibold">Bagages enregistrés inclus uniquement</div>
+              <p className="text-sm text-gray-600">Exclure les vols sans bagages inclus</p>
+            </label>
+          </div>
+
+          {/* NOTE HÔTEL */}
+          <div>
+            <label className="block text-sm font-semibold mb-3">Note minimale de l'hôtel</label>
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { value: 0, label: 'Toutes notes' },
+                { value: 3, label: '3 étoiles +' },
+                { value: 4, label: '4 étoiles +' },
+                { value: 5, label: '5 étoiles' }
+              ].map(option => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setFilters({ ...filters, minHotelRating: option.value })}
+                  className={`py-3 px-3 rounded-lg border-2 font-medium transition ${
+                    filters.minHotelRating === option.value
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white border-gray-300 hover:border-blue-400'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* TYPE HÉBERGEMENT */}
+          <div>
+            <label className="block text-sm font-semibold mb-3">Type d'hébergement</label>
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { value: 'all', label: 'Tous types' },
+                { value: 'hotel', label: 'Hôtels' },
+                { value: 'hostel', label: 'Auberges' },
+                { value: 'apartment', label: 'Appartements' }
+              ].map(option => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setFilters({ ...filters, accommodationType: option.value })}
+                  className={`py-3 px-3 rounded-lg border-2 font-medium transition ${
+                    filters.accommodationType === option.value
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white border-gray-300 hover:border-blue-400'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* BOUTON RECHERCHE */}
+      <button
+        type="submit"
+        disabled={isLoading}
+        className="btn-primary w-full text-lg flex items-center justify-center gap-3 py-4"
+      >
+        {isLoading ? (
+          <>
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+            Recherche en cours...
+          </>
+        ) : (
+          <>
+            <Search className="w-6 h-6" />
+            Découvrir les destinations
+          </>
+        )}
+      </button>
+
+      {/* TEMPS ESTIMÉ */}
+      <p className="text-center text-sm text-gray-500 mt-4">
+        ⏱️ Résultats en ~30-40 secondes • {filters.maxStops >= 0 ? 'Filtres activés' : 'Toutes destinations'}
+      </p>
+    </form>
+  )
+}

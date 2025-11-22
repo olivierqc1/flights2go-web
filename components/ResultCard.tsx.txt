@@ -1,0 +1,67 @@
+'use client'
+
+import { ExternalLink, TrendingDown } from 'lucide-react'
+
+interface Destination {
+  city: string
+  country: string
+  code: string
+  price: number
+  currency: string
+  flag: string
+}
+
+interface ResultCardProps {
+  destination: Destination
+}
+
+export default function ResultCard({ destination }: ResultCardProps) {
+  const handleBookClick = () => {
+    const kayakUrl = `https://www.kayak.com/flights/YUL-${destination.code}`
+    window.open(kayakUrl, '_blank')
+  }
+
+  return (
+    <div className="card hover:scale-105 transition-transform duration-200">
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <span className="text-4xl">{destination.flag}</span>
+          <div>
+            <h3 className="text-xl font-bold text-gray-900">{destination.city}</h3>
+            <p className="text-sm text-gray-600">{destination.country}</p>
+          </div>
+        </div>
+        <span className="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded">
+          {destination.code}
+        </span>
+      </div>
+
+      <div className="mb-4">
+        <div className="flex items-baseline gap-1">
+          <span className="text-3xl font-bold text-primary-600">
+            {destination.price}
+          </span>
+          <span className="text-gray-600 font-medium">
+            {destination.currency}
+          </span>
+        </div>
+        <p className="text-sm text-gray-500 mt-1">
+          Prix par personne, aller simple
+        </p>
+      </div>
+
+      <div className="flex items-center gap-2 mb-4 text-sm text-green-600">
+        <TrendingDown className="w-4 h-4" />
+        <span className="font-medium">Excellent prix</span>
+      </div>
+
+      <button 
+        onClick={handleBookClick}
+        className="btn-primary w-full flex items-center justify-center gap-2"
+      >
+        <span>Réserver maintenant</span>
+        <ExternalLink className="w-4 h-4" />
+      </button>
+    </div>
+  )
+}
