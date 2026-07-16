@@ -1,6 +1,8 @@
 "use client";
 
-import { Plane, TrainFront, Bus, BedDouble, ExternalLink, Clock } from "lucide-react";
+import {
+  Plane, TrainFront, Bus, BedDouble, ExternalLink, Clock, CalendarDays,
+} from "lucide-react";
 import { t, Lang } from "../lib/i18n";
 import { TravelPackage } from "../lib/api";
 
@@ -22,6 +24,13 @@ export default function PackageCard({ pkg, lang, nights }: Props) {
     if (s === 1) return t(lang, "stops_1");
     return `${s} ${t(lang, "stops_n")}`;
   };
+
+  const depDate = pkg.transport.departure_date
+    ? new Date(pkg.transport.departure_date + "T12:00:00").toLocaleDateString(
+        lang === "en" ? "en-GB" : lang === "es" ? "es-ES" : "fr-FR",
+        { day: "numeric", month: "short" }
+      )
+    : null;
 
   return (
     <div className="bg-white/80 backdrop-blur rounded-3xl shadow-lg shadow-slate-200/60 hover:shadow-xl hover:-translate-y-0.5 transition-all p-5 space-y-4">
@@ -59,6 +68,12 @@ export default function PackageCard({ pkg, lang, nights }: Props) {
           </span>
         </div>
         <div className="flex items-center gap-3 text-xs text-slate-400 pl-9">
+          {depDate && (
+            <span className="flex items-center gap-1 text-indigo-500 font-medium">
+              <CalendarDays size={11} />
+              {t(lang, "departure")} {depDate}
+            </span>
+          )}
           {pkg.transport.duration_hours != null && (
             <span className="flex items-center gap-1">
               <Clock size={11} />
