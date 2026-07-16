@@ -2,12 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Lang, t } from "../lib/i18n";
-import {
-  Destination,
-  TravelPackage,
-  fetchDestinations,
-  searchPackages,
-} from "../lib/api";
+import { useDestinations } from "../lib/useDestinations";
+import { useSearch } from "../lib/useSearch";
 import Header from "../components/Header";
 import SearchForm from "../components/SearchForm";
 import ResultsList from "../components/ResultsList";
@@ -15,6 +11,7 @@ import ResultsList from "../components/ResultsList";
 export interface SearchFormValues {
   origin: string;
   budget: number;
+  currency: string;
   month: string;
   nights: number;
   travelers: number;
@@ -28,60 +25,14 @@ export interface SearchFormValues {
 
 export default function Home() {
   const [lang, setLang] = useState<Lang>("en");
-  const [destinations, setDestinations] = useState<Destination[]>([]);
-  const [waking, setWaking] = useState(true);
-  const [packages, setPackages] = useState<TravelPackage[] | null>(null);
-  const [nights, setNights] = useState(4);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
 
   useEffect(() => {
     const nav = navigator.language.slice(0, 2);
     if (nav === "fr" || nav === "es") setLang(nav as Lang);
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-    let attempts = 0;
-
-    const load = () => {
-      fetchDestinations(lang)
-        .then((d) => {
-          if (cancelled) return;
-          setDestinations(d);
-          setWaking(false);
-        })
-        .catch(() => {
-          if (cancelled) return;
-          attempts += 1;
-          if (attempts < 6) {
-            setTimeout(load, 10000);
-          } else {
-            setWaking(false);
-            setError(true);
-          }
-        });
-    };
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, [lang]);
-
-  const handleSearch = async (p: SearchFormValues) => {
-    setLoading(true);
-    setError(false);
-    setNights(p.nights);
-    try {
-      const results = await searchPackages({ ...p, lang });
-      setPackages(results);
-    } catch {
-      setError(true);
-      setPackages(null);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { destinations, waking, failed } = useDestinations(lang);
+  const { packages, nights, loading, error, search } = useSearch(lang);
 
   return (
     <main className="min-h-screen max-w-3xl mx-auto px-4 py-8 space-y-6">
@@ -97,14 +48,14 @@ export default function Home() {
         lang={lang}
         destinations={destinations}
         loading={loading}
-        onSearch={handleSearch}
+        onSearch={search}
       />
 
       <ResultsList
         packages={packages}
         lang={lang}
         nights={nights}
-        error={error}
+        error={error || failed}
       />
     </main>
   );
