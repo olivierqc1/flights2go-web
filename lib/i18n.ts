@@ -1,7 +1,0 @@
-bags: "Valises en soute",
-  bagsHint: "+~60€ A/R par valise en avion (estimé)",
-  accommodation: "Hébergement",
-  accHotel: "Hôtel",
-  accHostel: "Auberge",
-  accAny: "Peu importe",
-  avoidCountries: "Pays à éviter (optionnel)",
