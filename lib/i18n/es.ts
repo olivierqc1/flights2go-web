@@ -5,6 +5,8 @@ const es: { [key: string]: string } = {
   budget: "Presupuesto total (€)",
   month: "Mes de salida",
   nights: "Noches",
+  travelers: "Viajeros",      ← nouvelle ligne
+  transport: "Transporte",
   transport: "Transporte",
   flight: "Avión",
   train: "Tren",
