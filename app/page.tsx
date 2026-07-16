@@ -17,6 +17,7 @@ export interface SearchFormValues {
   budget: number;
   month: string;
   nights: number;
+  travelers: number;
   transportModes: string[];
   minHotelRating: number;
   bags: number;
@@ -33,13 +34,11 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
-  // Langue du navigateur au premier chargement
   useEffect(() => {
     const nav = navigator.language.slice(0, 2);
     if (nav === "fr" || nav === "es") setLang(nav as Lang);
   }, []);
 
-  // Destinations localisées, avec retry pour le cold start Render
   useEffect(() => {
     let cancelled = false;
     let attempts = 0;
@@ -55,7 +54,7 @@ export default function Home() {
           if (cancelled) return;
           attempts += 1;
           if (attempts < 6) {
-            setTimeout(load, 10000); // retry aux 10s (~1 min total)
+            setTimeout(load, 10000);
           } else {
             setWaking(false);
             setError(true);
@@ -88,7 +87,7 @@ export default function Home() {
       <Header lang={lang} onLangChange={setLang} />
 
       {waking && destinations.length === 0 && (
-        <p className="text-center text-sm text-gray-400 animate-pulse">
+        <p className="text-center text-sm text-slate-400 animate-pulse">
           {t(lang, "waking")}
         </p>
       )}
