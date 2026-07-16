@@ -1,25 +1,16 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Plane, TrainFront, Bus, Search, Luggage } from "lucide-react";
+import { Plane, TrainFront, Bus, Search, Luggage, Users } from "lucide-react";
 import { t, Lang } from "../lib/i18n";
 import { Destination } from "../lib/api";
+import type { SearchFormValues } from "../app/page";
 
 interface Props {
   lang: Lang;
   destinations: Destination[];
   loading: boolean;
-  onSearch: (params: {
-    origin: string;
-    budget: number;
-    month: string;
-    nights: number;
-    transportModes: string[];
-    minHotelRating: number;
-    bags: number;
-    accommodationType: string;
-    excludeCountries: string[];
-  }) => void;
+  onSearch: (params: SearchFormValues) => void;
 }
 
 function nextMonths(count: number): string[] {
@@ -27,23 +18,22 @@ function nextMonths(count: number): string[] {
   const d = new Date();
   for (let i = 0; i < count; i++) {
     const dt = new Date(d.getFullYear(), d.getMonth() + i, 1);
-    const m = String(dt.getMonth() + 1).padStart(2, "0");
-    out.push(`${dt.getFullYear()}-${m}`);
+    out.push(`${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}`);
   }
   return out;
 }
 
-export default function SearchForm({
-  lang,
-  destinations,
-  loading,
-  onSearch,
-}: Props) {
+const field =
+  "w-full rounded-xl bg-slate-50 border border-slate-200 p-3 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition";
+const label = "block text-sm font-semibold text-slate-600 mb-1.5";
+
+export default function SearchForm({ lang, destinations, loading, onSearch }: Props) {
   const months = nextMonths(12);
   const [origin, setOrigin] = useState("BCN");
   const [budget, setBudget] = useState(500);
   const [month, setMonth] = useState(months[1]);
   const [nights, setNights] = useState(4);
+  const [travelers, setTravelers] = useState(1);
   const [modes, setModes] = useState<string[]>(["flight", "train", "bus"]);
   const [bags, setBags] = useState(0);
   const [acc, setAcc] = useState("hotel");
@@ -54,10 +44,10 @@ export default function SearchForm({
     destinations.forEach((d) => {
       if (!seen.has(d.country)) seen.set(d.country, d.flag);
     });
-    return Array.from(seen.entries()); // [country, flag]
+    return Array.from(seen.entries());
   }, [destinations]);
 
-  const toggleMode = (m: string) => {
+  const toggleMode = (m: string) =>
     setModes((prev) => {
       if (prev.includes(m)) {
         const next = prev.filter((x) => x !== m);
@@ -65,13 +55,18 @@ export default function SearchForm({
       }
       return [...prev, m];
     });
-  };
 
-  const toggleCountry = (c: string) => {
+  const toggleCountry = (c: string) =>
     setExcluded((prev) =>
       prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]
     );
-  };
+
+  const pill = (active: boolean) =>
+    `px-4 py-2 rounded-full border font-medium transition-all ${
+      active
+        ? "bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-200"
+        : "bg-white border-slate-200 text-slate-500 hover:border-indigo-300"
+    }`;
 
   const modeButtons = [
     { id: "flight", icon: Plane, label: t(lang, "flight") },
@@ -79,31 +74,12 @@ export default function SearchForm({
     { id: "bus", icon: Bus, label: t(lang, "bus") },
   ];
 
-  const accButtons = [
-    { id: "hotel", label: t(lang, "accHotel") },
-    { id: "hostel", label: t(lang, "accHostel") },
-    { id: "any", label: t(lang, "accAny") },
-  ];
-
-  const btn = (active: boolean) =>
-    `px-4 py-2 rounded-lg border-2 font-medium transition-colors ${
-      active
-        ? "bg-blue-600 border-blue-600 text-white"
-        : "bg-white border-gray-200 text-gray-500"
-    }`;
-
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 space-y-4">
+    <div className="bg-white/80 backdrop-blur rounded-3xl shadow-xl shadow-slate-200/60 p-6 space-y-5">
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-1">
-            {t(lang, "origin")}
-          </label>
-          <select
-            value={origin}
-            onChange={(e) => setOrigin(e.target.value)}
-            className="w-full border-2 border-gray-200 rounded-lg p-3"
-          >
+          <label className={label}>{t(lang, "origin")}</label>
+          <select value={origin} onChange={(e) => setOrigin(e.target.value)} className={field}>
             {destinations.map((d) => (
               <option key={d.code} value={d.code}>
                 {d.flag} {d.name}
@@ -112,112 +88,107 @@ export default function SearchForm({
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">
-            {t(lang, "budget")}
-          </label>
+          <label className={label}>{t(lang, "budget")}</label>
           <input
-            type="number"
-            min={100}
-            step={50}
-            value={budget}
+            type="number" min={100} step={50} value={budget}
             onChange={(e) => setBudget(Number(e.target.value))}
-            className="w-full border-2 border-gray-200 rounded-lg p-3"
+            className={`${field} font-bold text-indigo-700`}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">
-            {t(lang, "month")}
-          </label>
-          <select
-            value={month}
-            onChange={(e) => setMonth(e.target.value)}
-            className="w-full border-2 border-gray-200 rounded-lg p-3"
-          >
+          <label className={label}>{t(lang, "month")}</label>
+          <select value={month} onChange={(e) => setMonth(e.target.value)} className={field}>
             {months.map((m) => (
-              <option key={m} value={m}>
-                {m}
-              </option>
+              <option key={m} value={m}>{m}</option>
             ))}
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">
-            {t(lang, "nights")}
-          </label>
+          <label className={label}>{t(lang, "nights")}</label>
           <input
-            type="number"
-            min={1}
-            max={21}
-            value={nights}
+            type="number" min={1} max={21} value={nights}
             onChange={(e) => setNights(Number(e.target.value))}
-            className="w-full border-2 border-gray-200 rounded-lg p-3"
+            className={field}
           />
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium mb-2">
-          {t(lang, "transport")}
-        </label>
-        <div className="flex gap-2">
-          {modeButtons.map(({ id, icon: Icon, label }) => (
-            <button
-              key={id}
-              onClick={() => toggleMode(id)}
-              className={`flex items-center gap-2 ${btn(modes.includes(id))}`}
-            >
-              <Icon size={18} />
-              {label}
-            </button>
-          ))}
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-2">
-            <span className="flex items-center gap-1">
-              <Luggage size={16} /> {t(lang, "bags")}
-            </span>
+          <label className={label}>
+            <span className="flex items-center gap-1.5"><Users size={15} /> {t(lang, "travelers")}</span>
           </label>
-          <div className="flex gap-2">
-            {[0, 1, 2].map((n) => (
-              <button key={n} onClick={() => setBags(n)} className={btn(bags === n)}>
+          <div className="flex gap-1.5 flex-wrap">
+            {[1, 2, 3, 4, 5, 6].map((n) => (
+              <button key={n} onClick={() => setTravelers(n)}
+                className={`w-10 h-10 rounded-full border font-semibold transition-all ${
+                  travelers === n
+                    ? "bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-200"
+                    : "bg-white border-slate-200 text-slate-500"
+                }`}>
                 {n}
               </button>
             ))}
           </div>
-          <p className="text-xs text-gray-400 mt-1">{t(lang, "bagsHint")}</p>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2">
-            {t(lang, "accommodation")}
+          <label className={label}>
+            <span className="flex items-center gap-1.5"><Luggage size={15} /> {t(lang, "bags")}</span>
           </label>
-          <div className="flex gap-2 flex-wrap">
-            {accButtons.map(({ id, label }) => (
-              <button key={id} onClick={() => setAcc(id)} className={btn(acc === id)}>
-                {label}
+          <div className="flex gap-1.5">
+            {[0, 1, 2].map((n) => (
+              <button key={n} onClick={() => setBags(n)}
+                className={`w-10 h-10 rounded-full border font-semibold transition-all ${
+                  bags === n
+                    ? "bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-200"
+                    : "bg-white border-slate-200 text-slate-500"
+                }`}>
+                {n}
               </button>
             ))}
           </div>
+          <p className="text-xs text-slate-400 mt-1.5">{t(lang, "bagsHint")}</p>
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-2">
-          {t(lang, "avoidCountries")}
-        </label>
+        <label className={label}>{t(lang, "transport")}</label>
+        <div className="flex gap-2">
+          {modeButtons.map(({ id, icon: Icon, label: lbl }) => (
+            <button key={id} onClick={() => toggleMode(id)}
+              className={`flex items-center gap-2 ${pill(modes.includes(id))}`}>
+              <Icon size={17} />
+              {lbl}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className={label}>{t(lang, "accommodation")}</label>
         <div className="flex gap-2 flex-wrap">
+          {[
+            { id: "hotel", lbl: t(lang, "accHotel") },
+            { id: "hostel", lbl: t(lang, "accHostel") },
+            { id: "any", lbl: t(lang, "accAny") },
+          ].map(({ id, lbl }) => (
+            <button key={id} onClick={() => setAcc(id)} className={pill(acc === id)}>
+              {lbl}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className={label}>{t(lang, "avoidCountries")}</label>
+        <div className="flex gap-1.5 flex-wrap">
           {countries.map(([country, flag]) => (
-            <button
-              key={country}
-              onClick={() => toggleCountry(country)}
-              className={`px-3 py-1 rounded-full border text-sm transition-colors ${
+            <button key={country} onClick={() => toggleCountry(country)}
+              className={`px-3 py-1 rounded-full border text-sm transition-all ${
                 excluded.includes(country)
-                  ? "bg-red-50 border-red-400 text-red-600 line-through"
-                  : "bg-white border-gray-200 text-gray-600"
-              }`}
-            >
+                  ? "bg-red-50 border-red-300 text-red-500 line-through"
+                  : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
+              }`}>
               {flag} {country}
             </button>
           ))}
@@ -227,19 +198,13 @@ export default function SearchForm({
       <button
         onClick={() =>
           onSearch({
-            origin,
-            budget,
-            month,
-            nights,
-            transportModes: modes,
-            minHotelRating: 0,
-            bags,
-            accommodationType: acc,
-            excludeCountries: excluded,
+            origin, budget, month, nights, travelers,
+            transportModes: modes, minHotelRating: 0,
+            bags, accommodationType: acc, excludeCountries: excluded,
           })
         }
         disabled={loading}
-        className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-semibold py-3 rounded-lg transition-colors"
+        className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 disabled:opacity-60 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-indigo-200 transition-all active:scale-[0.98]"
       >
         <Search size={20} />
         {loading ? t(lang, "searching") : t(lang, "search")}
