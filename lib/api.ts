@@ -3,12 +3,30 @@
 export const API_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
+export const CURRENCIES = [
+  "EUR", "USD", "CAD", "GBP", "CHF", "PLN", "SEK", "CZK", "DKK",
+] as const;
+
+export function fmtMoney(amount: number, currency: string, lang: string): string {
+  const locale = lang === "en" ? "en-GB" : lang === "es" ? "es-ES" : "fr-FR";
+  try {
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  } catch {
+    return `${Math.round(amount)} ${currency}`;
+  }
+}
+
 export interface TransportInfo {
   mode: "flight" | "train" | "bus";
   price: number;
   duration_hours: number | null;
   stops: number | null;
   carrier: string | null;
+  departure_date: string | null;
   booking_url: string;
 }
 
@@ -18,6 +36,7 @@ export interface HotelInfo {
   total_price: number;
   rating: number;
   booking_url: string;
+  alt_booking_url: string | null;
 }
 
 export interface TravelPackage {
@@ -25,6 +44,7 @@ export interface TravelPackage {
   country: string;
   code: string;
   flag: string;
+  currency: string;
   transport: TransportInfo;
   hotel: HotelInfo;
   total_cost: number;
@@ -43,9 +63,11 @@ export interface Destination {
 export interface SearchParams {
   origin: string;
   budget: number;
+  currency: string;
   month: string;
   nights: number;
   travelers: number;
+  tripType: string;
   lang: string;
   transportModes: string[];
   minHotelRating: number;
@@ -69,9 +91,11 @@ export async function searchPackages(
     body: JSON.stringify({
       origin: p.origin,
       budget: p.budget,
+      currency: p.currency,
       month: p.month,
       nights: p.nights,
       travelers: p.travelers,
+      tripType: p.tripType,
       lang: p.lang,
       filters: {
         transportModes: p.transportModes,
