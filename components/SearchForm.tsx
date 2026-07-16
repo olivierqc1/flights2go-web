@@ -6,7 +6,7 @@ import {
   CalendarRange, CalendarHeart,
 } from "lucide-react";
 import { t, Lang } from "../lib/i18n";
-import { Destination } from "../lib/api";
+import { Destination, CURRENCIES } from "../lib/api";
 import type { SearchFormValues } from "../app/page";
 
 interface Props {
@@ -33,7 +33,8 @@ const label = "block text-sm font-semibold text-slate-600 mb-1.5";
 export default function SearchForm({ lang, destinations, loading, onSearch }: Props) {
   const months = nextMonths(12);
   const [origin, setOrigin] = useState("BCN");
-  const [budget, setBudget] = useState(500);
+  const [budgetStr, setBudgetStr] = useState("500");
+  const [currency, setCurrency] = useState("EUR");
   const [month, setMonth] = useState(months[1]);
   const [nights, setNights] = useState(4);
   const [travelers, setTravelers] = useState(1);
@@ -42,6 +43,8 @@ export default function SearchForm({ lang, destinations, loading, onSearch }: Pr
   const [bags, setBags] = useState(0);
   const [acc, setAcc] = useState("hotel");
   const [excluded, setExcluded] = useState<string[]>([]);
+
+  const budget = Math.max(0, parseInt(budgetStr.replace(/\D/g, ""), 10) || 0);
 
   const countries = useMemo(() => {
     const seen = new Map<string, string>();
@@ -86,17 +89,35 @@ export default function SearchForm({ lang, destinations, loading, onSearch }: Pr
 
   return (
     <div className="bg-white/80 backdrop-blur rounded-3xl shadow-xl shadow-slate-200/60 p-6 space-y-5">
-      {/* Budget en premier — la question centrale */}
+      {/* Budget + devise */}
       <div>
-        <label className={label}>{t(lang, "budget")}</label>
+        <div className="flex items-end justify-between mb-1.5">
+          <label className="text-sm font-semibold text-slate-600">
+            {t(lang, "budget").replace(" (€)", "")}
+          </label>
+          <select
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value)}
+            className="text-sm font-semibold text-indigo-600 bg-indigo-50 rounded-lg px-2 py-1 border border-indigo-100"
+            aria-label={t(lang, "currency")}
+          >
+            {CURRENCIES.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+        </div>
         <input
-          type="number" min={100} step={50} value={budget}
-          onChange={(e) => setBudget(Number(e.target.value))}
+          type="text"
+          inputMode="numeric"
+          value={budgetStr}
+          onChange={(e) => setBudgetStr(e.target.value)}
+          onBlur={() => setBudgetStr(String(budget || 500))}
           className={`${field} text-3xl font-extrabold text-indigo-700 text-center`}
         />
         <input
-          type="range" min={100} max={3000} step={50} value={budget}
-          onChange={(e) => setBudget(Number(e.target.value))}
+          type="range" min={100} max={5000} step={50}
+          value={Math.min(Math.max(budget, 100), 5000)}
+          onChange={(e) => setBudgetStr(e.target.value)}
           className="w-full mt-2 accent-indigo-600"
         />
       </div>
@@ -105,22 +126,19 @@ export default function SearchForm({ lang, destinations, loading, onSearch }: Pr
       <div>
         <label className={label}>{t(lang, "when")}</label>
         <div className="grid grid-cols-2 gap-2">
-          <button onClick={() => pickTrip("month")}
-            className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border font-medium transition-all ${
-              tripType === "month"
-                ? "bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-200"
-                : "bg-white border-slate-200 text-slate-500"
-            }`}>
-            <CalendarRange size={17} /> {t(lang, "tripMonth")}
-          </button>
-          <button onClick={() => pickTrip("weekend")}
-            className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border font-medium transition-all ${
-              tripType === "weekend"
-                ? "bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-200"
-                : "bg-white border-slate-200 text-slate-500"
-            }`}>
-            <CalendarHeart size={17} /> {t(lang, "tripWeekend")}
-          </button>
+          {[
+            { id: "month", icon: CalendarRange, lbl: t(lang, "tripMonth") },
+            { id: "weekend", icon: CalendarHeart, lbl: t(lang, "tripWeekend") },
+          ].map(({ id, icon: Icon, lbl }) => (
+            <button key={id} onClick={() => pickTrip(id)}
+              className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border font-medium transition-all ${
+                tripType === id
+                  ? "bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-200"
+                  : "bg-white border-slate-200 text-slate-500"
+              }`}>
+              <Icon size={17} /> {lbl}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -239,8 +257,8 @@ export default function SearchForm({ lang, destinations, loading, onSearch }: Pr
       <button
         onClick={() =>
           onSearch({
-            origin, budget, month, nights, travelers, tripType,
-            transportModes: modes, minHotelRating: 0,
+            origin, budget: budget || 500, currency, month, nights,
+            travelers, tripType, transportModes: modes, minHotelRating: 0,
             bags, accommodationType: acc, excludeCountries: excluded,
           })
         }
