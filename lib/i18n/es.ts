@@ -18,6 +18,7 @@ const es: { [key: string]: string } = {
   avoidCountries: "Países a evitar (opcional)",
   search: "Buscar",
   searching: "Buscando...",
+waking: "Despertando el servidor... hasta 1 min la primera vez.",
   noResults: "Sin resultados con estos criterios. Prueba con más presupuesto u otros transportes.",
   results: "destinos encontrados",
   perNight: "/noche",
