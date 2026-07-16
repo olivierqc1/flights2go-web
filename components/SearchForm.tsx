@@ -13,6 +13,7 @@ interface Props {
   lang: Lang;
   destinations: Destination[];
   loading: boolean;
+  initial?: Partial<SearchFormValues>;
   onSearch: (params: SearchFormValues) => void;
 }
 
@@ -30,19 +31,23 @@ const field =
   "w-full rounded-xl bg-slate-50 border border-slate-200 p-3 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition";
 const label = "block text-sm font-semibold text-slate-600 mb-1.5";
 
-export default function SearchForm({ lang, destinations, loading, onSearch }: Props) {
+export default function SearchForm({ lang, destinations, loading, initial, onSearch }: Props) {
   const months = nextMonths(12);
-  const [origin, setOrigin] = useState("BCN");
-  const [budgetStr, setBudgetStr] = useState("500");
-  const [currency, setCurrency] = useState("EUR");
-  const [month, setMonth] = useState(months[1]);
-  const [nights, setNights] = useState(4);
-  const [travelers, setTravelers] = useState(1);
-  const [tripType, setTripType] = useState("month");
-  const [modes, setModes] = useState<string[]>(["flight", "train", "bus"]);
-  const [bags, setBags] = useState(0);
-  const [acc, setAcc] = useState("hotel");
-  const [excluded, setExcluded] = useState<string[]>([]);
+  const [origin, setOrigin] = useState(initial?.origin ?? "BCN");
+  const [budgetStr, setBudgetStr] = useState(String(initial?.budget ?? 500));
+  const [currency, setCurrency] = useState(initial?.currency ?? "EUR");
+  const [month, setMonth] = useState(initial?.month || months[1]);
+  const [nights, setNights] = useState(initial?.nights ?? 4);
+  const [travelers, setTravelers] = useState(initial?.travelers ?? 1);
+  const [tripType, setTripType] = useState(initial?.tripType ?? "month");
+  const [modes, setModes] = useState<string[]>(
+    initial?.transportModes ?? ["flight", "train", "bus"]
+  );
+  const [bags, setBags] = useState(initial?.bags ?? 0);
+  const [acc, setAcc] = useState(initial?.accommodationType ?? "hotel");
+  const [excluded, setExcluded] = useState<string[]>(
+    initial?.excludeCountries ?? []
+  );
 
   const budget = Math.max(0, parseInt(budgetStr.replace(/\D/g, ""), 10) || 0);
 
