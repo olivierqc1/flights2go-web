@@ -18,6 +18,7 @@ export interface SearchFormValues {
   month: string;
   nights: number;
   travelers: number;
+  tripType: string;
   transportModes: string[];
   minHotelRating: number;
   bags: number;
