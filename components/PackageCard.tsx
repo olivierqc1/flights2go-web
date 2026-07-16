@@ -80,7 +80,7 @@ export default function PackageCard({ pkg, lang, nights }: Props) {
       </div>
 
       <div className="flex gap-2 pt-2">
-        
+        <a
           href={pkg.transport.booking_url}
           target="_blank"
           rel="noopener noreferrer sponsored"
@@ -88,7 +88,7 @@ export default function PackageCard({ pkg, lang, nights }: Props) {
         >
           {t(lang, "bookTransport")} <ExternalLink size={14} />
         </a>
-        
+        <a
           href={pkg.hotel.booking_url}
           target="_blank"
           rel="noopener noreferrer sponsored"
