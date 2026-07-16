@@ -4,7 +4,7 @@ import {
   Plane, TrainFront, Bus, BedDouble, ExternalLink, Clock, CalendarDays,
 } from "lucide-react";
 import { t, Lang } from "../lib/i18n";
-import { TravelPackage } from "../lib/api";
+import { TravelPackage, fmtMoney } from "../lib/api";
 
 const MODE_ICONS = { flight: Plane, train: TrainFront, bus: Bus };
 
@@ -16,6 +16,8 @@ interface Props {
 
 export default function PackageCard({ pkg, lang, nights }: Props) {
   const Icon = MODE_ICONS[pkg.transport.mode] ?? Plane;
+  const cur = pkg.currency || "EUR";
+  const m = (x: number) => fmtMoney(x, cur, lang);
 
   const stopsLabel = () => {
     const s = pkg.transport.stops ?? 0;
@@ -33,8 +35,13 @@ export default function PackageCard({ pkg, lang, nights }: Props) {
     : null;
 
   return (
-    <div className="bg-white/80 backdrop-blur rounded-3xl shadow-lg shadow-slate-200/60 hover:shadow-xl hover:-translate-y-0.5 transition-all p-5 space-y-4">
-      <div className="flex items-start justify-between">
+    <div className="relative overflow-hidden bg-white/80 backdrop-blur rounded-3xl shadow-lg shadow-slate-200/60 hover:shadow-xl hover:-translate-y-0.5 transition-all p-5 space-y-4">
+      {/* Drapeau en filigrane */}
+      <span className="absolute -top-6 -right-4 text-[110px] opacity-[0.08] rotate-12 select-none pointer-events-none">
+        {pkg.flag}
+      </span>
+
+      <div className="flex items-start justify-between relative">
         <div>
           <h3 className="text-xl font-extrabold tracking-tight">
             <span className="mr-1.5">{pkg.flag}</span>
@@ -44,15 +51,15 @@ export default function PackageCard({ pkg, lang, nights }: Props) {
         </div>
         <div className="text-right">
           <p className="text-2xl font-extrabold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
-            {pkg.total_cost.toFixed(0)}€
+            {m(pkg.total_cost)}
           </p>
           <p className="text-xs font-semibold text-emerald-600 bg-emerald-50 rounded-full px-2 py-0.5 inline-block">
-            {t(lang, "remaining")} {pkg.budget_remaining.toFixed(0)}€
+            {t(lang, "remaining")} {m(pkg.budget_remaining)}
           </p>
         </div>
       </div>
 
-      <div className="rounded-2xl bg-slate-50/80 p-3.5 space-y-2.5 text-sm">
+      <div className="rounded-2xl bg-slate-50/80 p-3.5 space-y-2.5 text-sm relative">
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-2 text-slate-700">
             <span className="p-1.5 rounded-lg bg-indigo-100 text-indigo-600">
@@ -64,7 +71,7 @@ export default function PackageCard({ pkg, lang, nights }: Props) {
             )}
           </span>
           <span className="font-bold">
-            {t(lang, "from")} {pkg.transport.price.toFixed(0)}€
+            {t(lang, "from")} {m(pkg.transport.price)}
           </span>
         </div>
         <div className="flex items-center gap-3 text-xs text-slate-400 pl-9">
@@ -91,7 +98,7 @@ export default function PackageCard({ pkg, lang, nights }: Props) {
             <span className="font-medium">{pkg.hotel.name}</span>
           </span>
           <span className="font-bold">
-            {pkg.hotel.price_per_night.toFixed(0)}€{t(lang, "perNight")}
+            {m(pkg.hotel.price_per_night)}{t(lang, "perNight")}
           </span>
         </div>
       </div>
@@ -106,6 +113,12 @@ export default function PackageCard({ pkg, lang, nights }: Props) {
           {t(lang, "bookHotel")} <ExternalLink size={14} />
         </a>
       </div>
+      {pkg.hotel.alt_booking_url && (
+        <a href={pkg.hotel.alt_booking_url} target="_blank" rel="noopener noreferrer sponsored"
+          className="flex items-center justify-center gap-1.5 w-full border-2 border-violet-200 text-violet-700 hover:bg-violet-50 text-sm font-semibold py-2 rounded-xl transition-all">
+          {t(lang, "bookHostel")} <ExternalLink size={14} />
+        </a>
+      )}
     </div>
   );
 }
