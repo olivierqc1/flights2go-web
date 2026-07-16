@@ -45,6 +45,7 @@ export interface SearchParams {
   budget: number;
   month: string;
   nights: number;
+  travelers: number;
   lang: string;
   transportModes: string[];
   minHotelRating: number;
@@ -70,6 +71,7 @@ export async function searchPackages(
       budget: p.budget,
       month: p.month,
       nights: p.nights,
+      travelers: p.travelers,
       lang: p.lang,
       filters: {
         transportModes: p.transportModes,
