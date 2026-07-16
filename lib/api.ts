@@ -48,6 +48,9 @@ export interface SearchParams {
   lang: string;
   transportModes: string[];
   minHotelRating: number;
+  bags: number;
+  accommodationType: string;
+  excludeCountries: string[];
 }
 
 export async function fetchDestinations(lang: string): Promise<Destination[]> {
@@ -72,6 +75,9 @@ export async function searchPackages(
         transportModes: p.transportModes,
         maxStops: -1,
         maxTravelHours: -1,
+        bags: p.bags,
+        accommodationType: p.accommodationType,
+        excludeCountries: p.excludeCountries,
         minHotelRating: p.minHotelRating,
       },
     }),
