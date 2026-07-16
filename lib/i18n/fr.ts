@@ -18,6 +18,7 @@ const fr: { [key: string]: string } = {
   avoidCountries: "Pays à éviter (optionnel)",
   search: "Chercher",
   searching: "Recherche en cours...",
+waking: "Réveil du serveur... jusqu'à 1 min au premier chargement.",
   noResults: "Aucun résultat pour ces critères. Essaie un budget plus élevé ou d'autres modes de transport.",
   results: "destinations trouvées",
   perNight: "/nuit",
