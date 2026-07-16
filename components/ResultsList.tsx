@@ -90,4 +90,4 @@ export default function ResultsList({ packages, lang, nights, error, loading }: 
       </p>
     </section>
   );
-}
+} 
