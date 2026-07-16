@@ -9,6 +9,7 @@ export interface TransportInfo {
   duration_hours: number | null;
   stops: number | null;
   carrier: string | null;
+  departure_date: string | null;
   booking_url: string;
 }
 
@@ -45,6 +46,8 @@ export interface SearchParams {
   budget: number;
   month: string;
   nights: number;
+  travelers: number;
+  tripType: string;
   lang: string;
   transportModes: string[];
   minHotelRating: number;
@@ -70,6 +73,8 @@ export async function searchPackages(
       budget: p.budget,
       month: p.month,
       nights: p.nights,
+      travelers: p.travelers,
+      tripType: p.tripType,
       lang: p.lang,
       filters: {
         transportModes: p.transportModes,
