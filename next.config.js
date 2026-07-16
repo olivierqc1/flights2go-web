@@ -1,9 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  experimental: {
-    serverActions: false,
-  },
-}
+  output: 'export',
+  basePath: '/flights2go-web',
+  assetPrefix: '/flights2go-web/',
+  images: { unoptimized: true },
+  trailingSlash: true,
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
