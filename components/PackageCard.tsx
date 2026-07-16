@@ -1,6 +1,6 @@
 "use client";
 
-import { Plane, TrainFront, Bus, Star, ExternalLink } from "lucide-react";
+import { Plane, TrainFront, Bus, BedDouble, ExternalLink, Clock } from "lucide-react";
 import { t, Lang } from "../lib/i18n";
 import { TravelPackage } from "../lib/api";
 
@@ -24,76 +24,70 @@ export default function PackageCard({ pkg, lang, nights }: Props) {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow p-5 space-y-3">
-      <div className="flex items-center justify-between">
+    <div className="bg-white/80 backdrop-blur rounded-3xl shadow-lg shadow-slate-200/60 hover:shadow-xl hover:-translate-y-0.5 transition-all p-5 space-y-4">
+      <div className="flex items-start justify-between">
         <div>
-          <h3 className="text-xl font-bold">
-            {pkg.flag} {pkg.destination}
+          <h3 className="text-xl font-extrabold tracking-tight">
+            <span className="mr-1.5">{pkg.flag}</span>
+            {pkg.destination}
           </h3>
-          <p className="text-sm text-gray-500">{pkg.country}</p>
+          <p className="text-sm text-slate-400">{pkg.country}</p>
         </div>
         <div className="text-right">
-          <p className="text-2xl font-bold text-blue-600">
+          <p className="text-2xl font-extrabold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
             {pkg.total_cost.toFixed(0)}€
           </p>
-          <p className="text-xs text-green-600 font-medium">
+          <p className="text-xs font-semibold text-emerald-600 bg-emerald-50 rounded-full px-2 py-0.5 inline-block">
             {t(lang, "remaining")} {pkg.budget_remaining.toFixed(0)}€
           </p>
         </div>
       </div>
 
-      <div className="border-t pt-3 space-y-2 text-sm">
+      <div className="rounded-2xl bg-slate-50/80 p-3.5 space-y-2.5 text-sm">
         <div className="flex items-center justify-between">
-          <span className="flex items-center gap-2 text-gray-700">
-            <Icon size={16} className="text-blue-600" />
-            {t(lang, pkg.transport.mode)}
+          <span className="flex items-center gap-2 text-slate-700">
+            <span className="p-1.5 rounded-lg bg-indigo-100 text-indigo-600">
+              <Icon size={15} />
+            </span>
+            <span className="font-medium">{t(lang, pkg.transport.mode)}</span>
             {pkg.transport.carrier && (
-              <span className="text-gray-400">· {pkg.transport.carrier}</span>
+              <span className="text-slate-400 text-xs">{pkg.transport.carrier}</span>
             )}
           </span>
-          <span className="font-semibold">
+          <span className="font-bold">
             {t(lang, "from")} {pkg.transport.price.toFixed(0)}€
           </span>
         </div>
-        <div className="flex items-center gap-3 text-xs text-gray-500 pl-6">
+        <div className="flex items-center gap-3 text-xs text-slate-400 pl-9">
           {pkg.transport.duration_hours != null && (
-            <span>
-              {pkg.transport.duration_hours}
-              {t(lang, "hours")}
+            <span className="flex items-center gap-1">
+              <Clock size={11} />
+              {pkg.transport.duration_hours}{t(lang, "hours")}
             </span>
           )}
           {stopsLabel() && <span>{stopsLabel()}</span>}
         </div>
 
-        <div className="flex items-center justify-between">
-          <span className="flex items-center gap-2 text-gray-700">
-            <Star size={16} className="text-yellow-500" />
-            <span className="truncate max-w-[180px]">{pkg.hotel.name}</span>
-            {pkg.hotel.rating > 0 && (
-              <span className="text-gray-400">{pkg.hotel.rating}★</span>
-            )}
+        <div className="flex items-center justify-between border-t border-slate-200/70 pt-2.5">
+          <span className="flex items-center gap-2 text-slate-700">
+            <span className="p-1.5 rounded-lg bg-violet-100 text-violet-600">
+              <BedDouble size={15} />
+            </span>
+            <span className="font-medium">{pkg.hotel.name}</span>
           </span>
-          <span className="font-semibold">
+          <span className="font-bold">
             {pkg.hotel.price_per_night.toFixed(0)}€{t(lang, "perNight")}
           </span>
         </div>
       </div>
 
-      <div className="flex gap-2 pt-2">
-        <a
-          href={pkg.transport.booking_url}
-          target="_blank"
-          rel="noopener noreferrer sponsored"
-          className="flex-1 flex items-center justify-center gap-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 rounded-lg transition-colors"
-        >
+      <div className="flex gap-2">
+        <a href={pkg.transport.booking_url} target="_blank" rel="noopener noreferrer sponsored"
+          className="flex-1 flex items-center justify-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-2.5 rounded-xl transition-all active:scale-[0.98]">
           {t(lang, "bookTransport")} <ExternalLink size={14} />
         </a>
-        <a
-          href={pkg.hotel.booking_url}
-          target="_blank"
-          rel="noopener noreferrer sponsored"
-          className="flex-1 flex items-center justify-center gap-1 bg-gray-800 hover:bg-gray-900 text-white text-sm font-medium py-2 rounded-lg transition-colors"
-        >
+        <a href={pkg.hotel.booking_url} target="_blank" rel="noopener noreferrer sponsored"
+          className="flex-1 flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-900 text-white text-sm font-semibold py-2.5 rounded-xl transition-all active:scale-[0.98]">
           {t(lang, "bookHotel")} <ExternalLink size={14} />
         </a>
       </div>
