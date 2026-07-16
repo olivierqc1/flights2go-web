@@ -4,8 +4,38 @@
 
 @layer base {
   body {
-    @apply text-slate-800 min-h-screen;
-    background: linear-gradient(160deg, #eef2ff 0%, #f8fafc 40%, #ecfeff 100%);
+    @apply text-slate-800 min-h-screen relative;
+    background: linear-gradient(160deg, #eef2ff 0%, #f8fafc 45%, #ecfeff 100%);
     background-attachment: fixed;
   }
+  body::before,
+  body::after {
+    content: "";
+    position: fixed;
+    border-radius: 9999px;
+    filter: blur(90px);
+    opacity: 0.35;
+    z-index: -1;
+    animation: float 14s ease-in-out infinite alternate;
+  }
+  body::before {
+    width: 420px;
+    height: 420px;
+    top: -120px;
+    right: -120px;
+    background: radial-gradient(circle, #a5b4fc, #c4b5fd);
+  }
+  body::after {
+    width: 380px;
+    height: 380px;
+    bottom: -100px;
+    left: -120px;
+    background: radial-gradient(circle, #67e8f9, #a5b4fc);
+    animation-delay: -7s;
+  }
+}
+
+@keyframes float {
+  from { transform: translateY(0) scale(1); }
+  to   { transform: translateY(40px) scale(1.08); }
 }
