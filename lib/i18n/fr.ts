@@ -6,6 +6,8 @@ const fr: { [key: string]: string } = {
   month: "Mois de départ",
   nights: "Nuits",
   travelers: "Voyageurs",
+currency: "Devise",
+  bookHostel: "Voir les auberges",
   when: "Type de voyage",
   tripMonth: "Mois flexible",
   tripWeekend: "Week-end",
